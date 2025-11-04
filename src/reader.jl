@@ -70,7 +70,7 @@ function Base.show(io::IO, ptr::Reader)
     )
 end
 
-function PSRGrafBinary.open(
+function PSRGraf.open(
     ::Type{Reader},
     path::String;
     is_hourly::Union{Bool, Nothing} = nothing,
@@ -455,7 +455,7 @@ function goto(graf::Reader, t::Integer, s::Integer = 1, b::Integer = 1)
 
     if t != graf.stage_current
         block_total_current = if graf.stage_type == STAGE_MONTH
-            PSRGrafBinary.blocks_in_stage(graf, tt)
+            PSRGraf.blocks_in_stage(graf, tt)
         else
             graf.block_total
         end
@@ -671,7 +671,7 @@ function next_registry(graf::Reader)
     return nothing
 end
 
-function PSRGrafBinary.close(ior::Reader)
+function PSRGraf.close(ior::Reader)
     Base.close(ior.io)
     ior.is_open = false
     empty!(ior.data)

@@ -1,4 +1,4 @@
-module PSRGrafBinary
+module PSRGraf
 
 using Dates
 using Encodings

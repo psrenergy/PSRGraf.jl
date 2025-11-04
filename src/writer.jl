@@ -53,7 +53,7 @@
     file_path::String = ""
 end
 
-function PSRGrafBinary.open(
+function PSRGraf.open(
     ::Type{Writer},
     path::String;
     # mandatory
@@ -410,7 +410,7 @@ function _get_last_position(io)
     ) + _get_registry_size(io)
 end
 
-function PSRGrafBinary.close(io::Writer)
+function PSRGraf.close(io::Writer)
     io.is_open = false
     io.reopen_mode = false # so that it wont try to reopen
 

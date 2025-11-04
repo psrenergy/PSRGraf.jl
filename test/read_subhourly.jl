@@ -4,7 +4,7 @@ function read_binary_subhourly()
     AGENTS = ["X", "Y", "Z"]
     UNIT = "MW"
 
-    for stage_type in [PSRGrafBinary.STAGE_MONTH, PSRGrafBinary.STAGE_WEEK, PSRGrafBinary.STAGE_DAY]
+    for stage_type in [PSRGraf.STAGE_MONTH, PSRGraf.STAGE_WEEK, PSRGraf.STAGE_DAY]
         for hour_discretization in [2, 4, 6]
             path = joinpath(
                 @__DIR__,
@@ -13,28 +13,28 @@ function read_binary_subhourly()
                 "subhourly_$(stage_type)_$(hour_discretization)",
             )
 
-            io = PSRGrafBinary.open(PSRGrafBinary.Reader, path; use_header = false)
+            io = PSRGraf.open(PSRGraf.Reader, path; use_header = false)
 
-            @test PSRGrafBinary.max_stages(io) == STAGES
-            @test PSRGrafBinary.max_scenarios(io) == SCENARIOS
-            @test PSRGrafBinary.max_blocks(io) ==
+            @test PSRGraf.max_stages(io) == STAGES
+            @test PSRGraf.max_scenarios(io) == SCENARIOS
+            @test PSRGraf.max_blocks(io) ==
                   hour_discretization *
-                  (stage_type == PSRGrafBinary.STAGE_MONTH ? 744 : PSRGrafBinary.HOURS_IN_STAGE[stage_type])
-            @test PSRGrafBinary.stage_type(io) == stage_type
-            @test PSRGrafBinary.initial_stage(io) == 2
-            @test PSRGrafBinary.initial_year(io) == 2006
-            @test PSRGrafBinary.data_unit(io) == UNIT
-            @test PSRGrafBinary.agent_names(io) == AGENTS
-            @test PSRGrafBinary.is_hourly(io) == true
-            @test PSRGrafBinary.hour_discretization(io) == hour_discretization
+                  (stage_type == PSRGraf.STAGE_MONTH ? 744 : PSRGraf.HOURS_IN_STAGE[stage_type])
+            @test PSRGraf.stage_type(io) == stage_type
+            @test PSRGraf.initial_stage(io) == 2
+            @test PSRGraf.initial_year(io) == 2006
+            @test PSRGraf.data_unit(io) == UNIT
+            @test PSRGraf.agent_names(io) == AGENTS
+            @test PSRGraf.is_hourly(io) == true
+            @test PSRGraf.hour_discretization(io) == hour_discretization
 
             for t in 1:STAGES
                 for s in 1:SCENARIOS
-                    @test PSRGrafBinary.blocks_in_stage(io, t) <= PSRGrafBinary.max_blocks(io)
-                    for b in 1:PSRGrafBinary.blocks_in_stage(io, t)
-                        @test PSRGrafBinary.current_stage(io) == t
-                        @test PSRGrafBinary.current_scenario(io) == s
-                        @test PSRGrafBinary.current_block(io) == b
+                    @test PSRGraf.blocks_in_stage(io, t) <= PSRGraf.max_blocks(io)
+                    for b in 1:PSRGraf.blocks_in_stage(io, t)
+                        @test PSRGraf.current_stage(io) == t
+                        @test PSRGraf.current_scenario(io) == s
+                        @test PSRGraf.current_block(io) == b
                         X = 10_000.0 * t + 1000.0 * s + b
                         Y = b + 0.0
                         Z = 10.0 * t + s
@@ -42,12 +42,12 @@ function read_binary_subhourly()
                         for agent in 1:3
                             @test io[agent] == ref[agent]
                         end
-                        PSRGrafBinary.next_registry(io)
+                        PSRGraf.next_registry(io)
                     end
                 end
             end
 
-            PSRGrafBinary.close(io)
+            PSRGraf.close(io)
         end
     end
     return

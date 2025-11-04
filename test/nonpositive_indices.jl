@@ -1,13 +1,13 @@
 function test_nonpositive_indices()
     path = joinpath(@__DIR__, "data", "case5", "inflow")
 
-    io_r = PSRGrafBinary.open(PSRGrafBinary.Reader, path; use_header = false)
+    io_r = PSRGraf.open(PSRGraf.Reader, path; use_header = false)
 
-    @test io_r isa PSRGrafBinary.Reader
+    @test io_r isa PSRGraf.Reader
     @test io_r.initial_stage == 5
     @test io_r.first_stage == -2
     @test io_r.relative_stage_skip == 0
-    @test PSRGrafBinary._get_position(
+    @test PSRGraf._get_position(
         io_r,
         io_r.first_stage,
         1,
@@ -21,17 +21,17 @@ function test_nonpositive_indices()
     )
 
     @testset "Read" begin
-        @test PSRGrafBinary.goto(io_r, -2, 1, 1) === nothing
+        @test PSRGraf.goto(io_r, -2, 1, 1) === nothing
 
-        @test_throws AssertionError PSRGrafBinary.goto(io_r, -3, 1, 1)
+        @test_throws AssertionError PSRGraf.goto(io_r, -3, 1, 1)
 
         # TODO Test read
     end
 
     temp_path = tempname()
 
-    io_w = PSRGrafBinary.open(
-        PSRGrafBinary.Writer,
+    io_w = PSRGraf.open(
+        PSRGraf.Writer,
         temp_path;
         first_stage = -2,
         unit = io_r.unit,
@@ -49,12 +49,12 @@ function test_nonpositive_indices()
 
             cache = collect(Float64, data)
 
-            PSRGrafBinary.write_registry(io_w, cache, t, s, b)
+            PSRGraf.write_registry(io_w, cache, t, s, b)
         end
     end
 
-    PSRGrafBinary.close(io_w)
-    PSRGrafBinary.close(io_r)
+    PSRGraf.close(io_w)
+    PSRGraf.close(io_r)
 
     return nothing
 end

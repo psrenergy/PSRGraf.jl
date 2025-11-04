@@ -1,4 +1,4 @@
-using PSRGrafBinary
+using PSRGraf
 using CSV
 using DataFrames
 using Test

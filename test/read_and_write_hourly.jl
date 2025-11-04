@@ -6,9 +6,9 @@ function read_write_binary_hourly()
     AGENTS = ["X", "Y", "Z"]
     UNIT = "MW"
 
-    for stage_type in [PSRGrafBinary.STAGE_MONTH, PSRGrafBinary.STAGE_WEEK, PSRGrafBinary.STAGE_DAY]
-        gerter = PSRGrafBinary.open(
-            PSRGrafBinary.Writer,
+    for stage_type in [PSRGraf.STAGE_MONTH, PSRGraf.STAGE_WEEK, PSRGraf.STAGE_DAY]
+        gerter = PSRGraf.open(
+            PSRGraf.Writer,
             FILE_GERTER;
             is_hourly = true,
             scenarios = SCENARIOS,
@@ -22,11 +22,11 @@ function read_write_binary_hourly()
         )
 
         for t in 1:STAGES, s in 1:SCENARIOS
-            for b in 1:PSRGrafBinary.blocks_in_stage(gerter, t)
+            for b in 1:PSRGraf.blocks_in_stage(gerter, t)
                 X = 10_000.0 * t + 1000.0 * s + b
                 Y = b + 0.0
                 Z = 10.0 * t + s
-                PSRGrafBinary.write_registry(
+                PSRGraf.write_registry(
                     gerter,
                     [X, Y, Z],
                     t,
@@ -36,32 +36,32 @@ function read_write_binary_hourly()
             end
         end
 
-        PSRGrafBinary.close(gerter)
+        PSRGraf.close(gerter)
 
-        ior = PSRGrafBinary.open(
-            PSRGrafBinary.Reader,
+        ior = PSRGraf.open(
+            PSRGraf.Reader,
             FILE_GERTER;
             use_header = false,
         )
 
-        @test PSRGrafBinary.max_stages(ior) == STAGES
-        @test PSRGrafBinary.max_scenarios(ior) == SCENARIOS
-        @test PSRGrafBinary.max_blocks(ior) ==
-              (stage_type == PSRGrafBinary.STAGE_MONTH ? 744 : PSRGrafBinary.HOURS_IN_STAGE[stage_type])
-        @test PSRGrafBinary.stage_type(ior) == stage_type
-        @test PSRGrafBinary.initial_stage(ior) == 2
-        @test PSRGrafBinary.initial_year(ior) == 2006
-        @test PSRGrafBinary.data_unit(ior) == "MW"
-        @test PSRGrafBinary.agent_names(ior) == ["X", "Y", "Z"]
-        @test PSRGrafBinary.is_hourly(ior) == true
-        @test PSRGrafBinary.hour_discretization(ior) == 1
+        @test PSRGraf.max_stages(ior) == STAGES
+        @test PSRGraf.max_scenarios(ior) == SCENARIOS
+        @test PSRGraf.max_blocks(ior) ==
+              (stage_type == PSRGraf.STAGE_MONTH ? 744 : PSRGraf.HOURS_IN_STAGE[stage_type])
+        @test PSRGraf.stage_type(ior) == stage_type
+        @test PSRGraf.initial_stage(ior) == 2
+        @test PSRGraf.initial_year(ior) == 2006
+        @test PSRGraf.data_unit(ior) == "MW"
+        @test PSRGraf.agent_names(ior) == ["X", "Y", "Z"]
+        @test PSRGraf.is_hourly(ior) == true
+        @test PSRGraf.hour_discretization(ior) == 1
 
         for t in 1:1, s in 1:1
-            @test PSRGrafBinary.blocks_in_stage(ior, t) <= PSRGrafBinary.max_blocks(ior)
-            for b in 1:PSRGrafBinary.blocks_in_stage(ior, t)
-                @test PSRGrafBinary.current_stage(ior) == t
-                @test PSRGrafBinary.current_scenario(ior) == s
-                @test PSRGrafBinary.current_block(ior) == b
+            @test PSRGraf.blocks_in_stage(ior, t) <= PSRGraf.max_blocks(ior)
+            for b in 1:PSRGraf.blocks_in_stage(ior, t)
+                @test PSRGraf.current_stage(ior) == t
+                @test PSRGraf.current_scenario(ior) == s
+                @test PSRGraf.current_block(ior) == b
                 X = 10_000.0 * t + 1000.0 * s + b
                 Y = b + 0.0
                 Z = 10.0 * t + s
@@ -69,11 +69,11 @@ function read_write_binary_hourly()
                 for agent in 1:3
                     @test ior[agent] == ref[agent]
                 end
-                PSRGrafBinary.next_registry(ior)
+                PSRGraf.next_registry(ior)
             end
         end
 
-        PSRGrafBinary.close(ior)
+        PSRGraf.close(ior)
         ior = nothing
     end
 
@@ -90,10 +90,10 @@ function read_write_binary_subhourly()
     AGENTS = ["X", "Y", "Z"]
     UNIT = "MW"
 
-    for stage_type in [PSRGrafBinary.STAGE_MONTH, PSRGrafBinary.STAGE_WEEK, PSRGrafBinary.STAGE_DAY]
+    for stage_type in [PSRGraf.STAGE_MONTH, PSRGraf.STAGE_WEEK, PSRGraf.STAGE_DAY]
         for hour_discretization in [2, 3, 4, 6, 12]
-            gerter = PSRGrafBinary.open(
-                PSRGrafBinary.Writer,
+            gerter = PSRGraf.open(
+                PSRGraf.Writer,
                 FILE_GERTER;
                 is_hourly = true,
                 hour_discretization = hour_discretization,
@@ -108,37 +108,37 @@ function read_write_binary_subhourly()
             )
 
             for t in 1:STAGES, s in 1:SCENARIOS
-                for b in 1:PSRGrafBinary.blocks_in_stage(gerter, t)
+                for b in 1:PSRGraf.blocks_in_stage(gerter, t)
                     X = 10_000.0 * t + 1000.0 * s + b
                     Y = b + 0.0
                     Z = 10.0 * t + s
-                    PSRGrafBinary.write_registry(gerter, [X, Y, Z], t, s, b)
+                    PSRGraf.write_registry(gerter, [X, Y, Z], t, s, b)
                 end
             end
 
-            PSRGrafBinary.close(gerter)
+            PSRGraf.close(gerter)
 
-            ior = PSRGrafBinary.open(PSRGrafBinary.Reader, FILE_GERTER; use_header = false)
+            ior = PSRGraf.open(PSRGraf.Reader, FILE_GERTER; use_header = false)
 
-            @test PSRGrafBinary.max_stages(ior) == STAGES
-            @test PSRGrafBinary.max_scenarios(ior) == SCENARIOS
-            @test PSRGrafBinary.max_blocks(ior) ==
+            @test PSRGraf.max_stages(ior) == STAGES
+            @test PSRGraf.max_scenarios(ior) == SCENARIOS
+            @test PSRGraf.max_blocks(ior) ==
                   hour_discretization *
-                  (stage_type == PSRGrafBinary.STAGE_MONTH ? 744 : PSRGrafBinary.HOURS_IN_STAGE[stage_type])
-            @test PSRGrafBinary.stage_type(ior) == stage_type
-            @test PSRGrafBinary.initial_stage(ior) == 2
-            @test PSRGrafBinary.initial_year(ior) == 2006
-            @test PSRGrafBinary.data_unit(ior) == "MW"
-            @test PSRGrafBinary.agent_names(ior) == ["X", "Y", "Z"]
-            @test PSRGrafBinary.is_hourly(ior) == true
-            @test PSRGrafBinary.hour_discretization(ior) == hour_discretization
+                  (stage_type == PSRGraf.STAGE_MONTH ? 744 : PSRGraf.HOURS_IN_STAGE[stage_type])
+            @test PSRGraf.stage_type(ior) == stage_type
+            @test PSRGraf.initial_stage(ior) == 2
+            @test PSRGraf.initial_year(ior) == 2006
+            @test PSRGraf.data_unit(ior) == "MW"
+            @test PSRGraf.agent_names(ior) == ["X", "Y", "Z"]
+            @test PSRGraf.is_hourly(ior) == true
+            @test PSRGraf.hour_discretization(ior) == hour_discretization
 
             for t in 1:1, s in 1:1
-                @test PSRGrafBinary.blocks_in_stage(ior, t) <= PSRGrafBinary.max_blocks(ior)
-                for b in 1:PSRGrafBinary.blocks_in_stage(ior, t)
-                    @test PSRGrafBinary.current_stage(ior) == t
-                    @test PSRGrafBinary.current_scenario(ior) == s
-                    @test PSRGrafBinary.current_block(ior) == b
+                @test PSRGraf.blocks_in_stage(ior, t) <= PSRGraf.max_blocks(ior)
+                for b in 1:PSRGraf.blocks_in_stage(ior, t)
+                    @test PSRGraf.current_stage(ior) == t
+                    @test PSRGraf.current_scenario(ior) == s
+                    @test PSRGraf.current_block(ior) == b
                     X = 10_000.0 * t + 1000.0 * s + b
                     Y = b + 0.0
                     Z = 10.0 * t + s
@@ -146,11 +146,11 @@ function read_write_binary_subhourly()
                     for agent in 1:3
                         @test ior[agent] == ref[agent]
                     end
-                    PSRGrafBinary.next_registry(ior)
+                    PSRGraf.next_registry(ior)
                 end
             end
 
-            PSRGrafBinary.close(ior)
+            PSRGraf.close(ior)
             ior = nothing
         end
     end
@@ -168,9 +168,9 @@ function read_write_binary_hourly_single_binary()
     AGENTS = ["X", "Y", "Z"]
     UNIT = "MW"
 
-    for stage_type in [PSRGrafBinary.STAGE_MONTH, PSRGrafBinary.STAGE_WEEK, PSRGrafBinary.STAGE_DAY]
-        gerter = PSRGrafBinary.open(
-            PSRGrafBinary.Writer,
+    for stage_type in [PSRGraf.STAGE_MONTH, PSRGraf.STAGE_WEEK, PSRGraf.STAGE_DAY]
+        gerter = PSRGraf.open(
+            PSRGraf.Writer,
             FILE_GERTER;
             is_hourly = true,
             scenarios = SCENARIOS,
@@ -185,11 +185,11 @@ function read_write_binary_hourly_single_binary()
         )
 
         for t in 1:STAGES, s in 1:SCENARIOS
-            for b in 1:PSRGrafBinary.blocks_in_stage(gerter, t)
+            for b in 1:PSRGraf.blocks_in_stage(gerter, t)
                 X = 10_000.0 * t + 1000.0 * s + b
                 Y = b + 0.0
                 Z = 10.0 * t + s
-                PSRGrafBinary.write_registry(
+                PSRGraf.write_registry(
                     gerter,
                     [X, Y, Z],
                     t,
@@ -199,33 +199,33 @@ function read_write_binary_hourly_single_binary()
             end
         end
 
-        PSRGrafBinary.close(gerter)
+        PSRGraf.close(gerter)
 
-        ior = PSRGrafBinary.open(
-            PSRGrafBinary.Reader,
+        ior = PSRGraf.open(
+            PSRGraf.Reader,
             FILE_GERTER;
             use_header = false,
             single_binary = true,
         )
 
-        @test PSRGrafBinary.max_stages(ior) == STAGES
-        @test PSRGrafBinary.max_scenarios(ior) == SCENARIOS
-        @test PSRGrafBinary.max_blocks(ior) ==
-              (stage_type == PSRGrafBinary.STAGE_MONTH ? 744 : PSRGrafBinary.HOURS_IN_STAGE[stage_type])
-        @test PSRGrafBinary.stage_type(ior) == stage_type
-        @test PSRGrafBinary.initial_stage(ior) == 2
-        @test PSRGrafBinary.initial_year(ior) == 2006
-        @test PSRGrafBinary.data_unit(ior) == "MW"
-        @test PSRGrafBinary.agent_names(ior) == ["X", "Y", "Z"]
-        @test PSRGrafBinary.is_hourly(ior) == true
-        @test PSRGrafBinary.hour_discretization(ior) == 1
+        @test PSRGraf.max_stages(ior) == STAGES
+        @test PSRGraf.max_scenarios(ior) == SCENARIOS
+        @test PSRGraf.max_blocks(ior) ==
+              (stage_type == PSRGraf.STAGE_MONTH ? 744 : PSRGraf.HOURS_IN_STAGE[stage_type])
+        @test PSRGraf.stage_type(ior) == stage_type
+        @test PSRGraf.initial_stage(ior) == 2
+        @test PSRGraf.initial_year(ior) == 2006
+        @test PSRGraf.data_unit(ior) == "MW"
+        @test PSRGraf.agent_names(ior) == ["X", "Y", "Z"]
+        @test PSRGraf.is_hourly(ior) == true
+        @test PSRGraf.hour_discretization(ior) == 1
 
         for t in 1:1, s in 1:1
-            @test PSRGrafBinary.blocks_in_stage(ior, t) <= PSRGrafBinary.max_blocks(ior)
-            for b in 1:PSRGrafBinary.blocks_in_stage(ior, t)
-                @test PSRGrafBinary.current_stage(ior) == t
-                @test PSRGrafBinary.current_scenario(ior) == s
-                @test PSRGrafBinary.current_block(ior) == b
+            @test PSRGraf.blocks_in_stage(ior, t) <= PSRGraf.max_blocks(ior)
+            for b in 1:PSRGraf.blocks_in_stage(ior, t)
+                @test PSRGraf.current_stage(ior) == t
+                @test PSRGraf.current_scenario(ior) == s
+                @test PSRGraf.current_block(ior) == b
                 X = 10_000.0 * t + 1000.0 * s + b
                 Y = b + 0.0
                 Z = 10.0 * t + s
@@ -233,11 +233,11 @@ function read_write_binary_hourly_single_binary()
                 for agent in 1:3
                     @test ior[agent] == ref[agent]
                 end
-                PSRGrafBinary.next_registry(ior)
+                PSRGraf.next_registry(ior)
             end
         end
 
-        PSRGrafBinary.close(ior)
+        PSRGraf.close(ior)
         ior = nothing
     end
 
