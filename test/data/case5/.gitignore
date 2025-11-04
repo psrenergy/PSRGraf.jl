@@ -1,0 +1,4 @@
+# Track inflow binary files:
+!inflow.hdr
+!inflow.bin
+!inflow.csv
