@@ -1,4 +1,4 @@
-@kwdef mutable struct Writer
+@kwdef mutable struct BinaryWriter
     io::IOStream
 
     # stages
@@ -54,7 +54,7 @@
 end
 
 function PSRGraf.open(
-    ::Type{Writer},
+    ::Type{BinaryWriter},
     path::String;
     # mandatory
     stages::Integer = 0,
@@ -297,7 +297,7 @@ function PSRGraf.open(
         end
     end
 
-    return Writer(;
+    return BinaryWriter(;
         first_stage = first_stage,
         last_stage = last_stage,
         num_stages = num_stages,
@@ -320,18 +320,18 @@ function PSRGraf.open(
     )
 end
 
-function _get_stage_offset(ior::Writer)
+function _get_stage_offset(ior::BinaryWriter)
     return 4 * ior.agents_total * ior.scenario_total * (ior.first_stage - 1)
 end
 
-is_hourly(graf::Writer) = graf.is_hourly
-hour_discretization(graf::Writer) = graf.hour_discretization
-stage_type(graf::Writer) = graf.stage_type
-max_blocks(graf::Writer) = graf.block_total
-initial_stage(graf::Writer) = graf.initial_stage
+is_hourly(graf::BinaryWriter) = graf.is_hourly
+hour_discretization(graf::BinaryWriter) = graf.hour_discretization
+stage_type(graf::BinaryWriter) = graf.stage_type
+max_blocks(graf::BinaryWriter) = graf.block_total
+initial_stage(graf::BinaryWriter) = graf.initial_stage
 
 function write_registry(
-    io::Writer,
+    io::BinaryWriter,
     data::Vector{T},
     stage::Integer,
     scenario::Integer = 1,
@@ -379,7 +379,7 @@ function write_registry(
     return nothing
 end
 
-function _reopen_pre_write(io::Writer)
+function _reopen_pre_write(io::BinaryWriter)
     if io.reopen_mode
         io.io = Base.open(io.FILE_PATH, "a")
         io.is_open = true
@@ -388,7 +388,7 @@ function _reopen_pre_write(io::Writer)
     return nothing
 end
 
-function _reopen_pos_write(io::Writer)
+function _reopen_pos_write(io::BinaryWriter)
     if io.reopen_mode
         Base.close(io.io)
         io.is_open = false
@@ -410,7 +410,7 @@ function _get_last_position(io)
     ) + _get_registry_size(io)
 end
 
-function PSRGraf.close(io::Writer)
+function PSRGraf.close(io::BinaryWriter)
     io.is_open = false
     io.reopen_mode = false # so that it wont try to reopen
 
@@ -434,6 +434,6 @@ function PSRGraf.close(io::Writer)
     return nothing
 end
 
-function file_path(iow::Writer)
+function file_path(iow::BinaryWriter)
     return iow.file_path
 end

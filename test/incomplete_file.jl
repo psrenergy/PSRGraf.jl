@@ -13,7 +13,7 @@ function incomplete_file()
     unit = ""
 
     iow = PSRGraf.open(
-        PSRGraf.Writer,
+        PSRGraf.BinaryWriter,
         bin_path;
         is_hourly = false,
         scenarios = n_scenarios,
@@ -46,7 +46,7 @@ function incomplete_file()
     PSRGraf.close(iow)
 
     ior = PSRGraf.open(
-        PSRGraf.Reader,
+        PSRGraf.BinaryReader,
         bin_path;
         header = agents,
     )

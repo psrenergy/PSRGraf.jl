@@ -7,7 +7,7 @@ function use_header()
     UNIT = "MW"
 
     iow = PSRGraf.open(
-        PSRGraf.Writer,
+        PSRGraf.BinaryWriter,
         file_path;
         is_hourly = true,
         scenarios = SCENARIOS,
@@ -40,7 +40,7 @@ function use_header()
     # All agents
 
     ior = PSRGraf.open(
-        PSRGraf.Reader,
+        PSRGraf.BinaryReader,
         file_path;
         use_header = true,
         header = ["X", "Y", "Z"],
@@ -66,7 +66,7 @@ function use_header()
     # # Only X
 
     ior = PSRGraf.open(
-        PSRGraf.Reader,
+        PSRGraf.BinaryReader,
         file_path;
         use_header = true,
         header = ["X"],
@@ -89,7 +89,7 @@ function use_header()
     # Only Y
 
     ior = PSRGraf.open(
-        PSRGraf.Reader,
+        PSRGraf.BinaryReader,
         file_path;
         use_header = true,
         header = ["Y"],
@@ -112,7 +112,7 @@ function use_header()
     # All agents reverse
 
     ior = PSRGraf.open(
-        PSRGraf.Reader,
+        PSRGraf.BinaryReader,
         file_path;
         use_header = true,
         header = ["Z", "Y", "X"],

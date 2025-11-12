@@ -72,7 +72,7 @@ function _delete_or_error(path::AbstractString)
         try
             rm(path)
         catch
-            error("Could not delete file $path it might be open in other process")
+            error("Could not delete file $path: it might be open in other process")
         end
     end
     return
@@ -232,15 +232,15 @@ Write a file to an array and header
 function file_to_array_and_header end
 
 """
-    open(::Type{Writer}, path::String; kwargs...)
+    open(::Type{BinaryWriter}, path::String; kwargs...)
 
 Method for opening file and registering time series data.
 If specified file doesn't exist, the method will create it, otherwise, the previous one will be overwritten.
-Returns updated `Writer` instance.
+Returns updated `BinaryWriter` instance.
 
 ### Arguments:
 
-  - `writer`: `Writer` instance to be used for opening file.
+  - `writer`: `BinaryWriter` instance to be used for opening file.
 
   - `path`: path to file.
 
@@ -302,9 +302,9 @@ Closes the [`Reader`](@ref) instance.
 
 * * *
 
-    close(iow::Writer)
+    close(iow::BinaryWriter)
 
-Closes the [`Writer`](@ref) instance.
+Closes the [`BinaryWriter`](@ref) instance.
 """
 function close end
 
@@ -446,18 +446,18 @@ function add_reader! end
 
 """
     write_registry(
-        iow::Writer,
+        iow::BinaryWriter,
         data::Vector{T},
         stage::Integer,
         scenario::Integer = 1,
         block::Integer = 1,
     ) where T <: Real
 
-Writes a data row into opened file through [`Writer`](@ref) instance.
+Writes a data row into opened file through [`BinaryWriter`](@ref) instance.
 
 ### Arguments:
 
-  - `iow`: `Writer` instance to be used for accessing file.
+  - `iow`: `BinaryWriter` instance to be used for accessing file.
 
   - `data`: elements data to be written.
   - `stage`: stage of the data to be written.
@@ -473,8 +473,8 @@ function array_to_file end
 
 """
     file_path(ior::Reader)
-    file_path(iow::Writer)
+    file_path(iow::BinaryWriter)
 
-Returns the path of the file associated with the [`Reader`](@ref) or [`Writer`](@ref) instance.
+Returns the path of the file associated with the [`Reader`](@ref) or [`BinaryWriter`](@ref) instance.
 """
 function file_path end
