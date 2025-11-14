@@ -11,7 +11,7 @@ include("utils.jl")
             @time include("read_and_write_blocks.jl")
         end
         @testset "Read and write with hourly data" begin
-            @time include("read_and_write_hourly.jl")
+            @time include("read_and_write_binary_hourly.jl")
         end
         @testset "Read subhourly data" begin
             @time include("read_subhourly.jl")
@@ -28,10 +28,10 @@ include("utils.jl")
     end
     @testset "OpenCSV file format" begin
         @testset "Read and write with monthly data" begin 
-            @time include("read_and_write_monthly.jl")
+            @time include("read_and_write_csv_monthly.jl")
         end
         @testset "Read and write with hourly data" begin 
-            @time include("read_and_write_hourly.jl")
+            @time include("read_and_write_csv_hourly.jl")
         end
         @testset "Utils" begin 
             @time include("time_series_utils.jl")

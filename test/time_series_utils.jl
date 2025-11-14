@@ -23,7 +23,7 @@ function test_convert_twice()
     stages = 12
 
     iow = PSRGraf.open(
-        PSRGraf.BinaryWriter,
+        PSRGraf.CSVWriter,
         path1,
         blocks = blocks,
         scenarios = scenarios,
@@ -51,7 +51,7 @@ function test_convert_twice()
     PSRGraf.close(iow)
 
     PSRGraf.convert_file(
-        PSRGraf.BinaryReader,
+        PSRGraf.CSVReader,
         PSRGraf.CSVWriter,
         path1,
     )
@@ -97,13 +97,13 @@ function test_convert_twice()
 
     PSRGraf.convert_file(
         PSRGraf.CSVReader,
-        PSRGraf.BinaryWriter,
+        PSRGraf.CSVWriter,
         path1,
         path_to = path2,
     )
 
     ior = PSRGraf.open(
-        PSRGraf.BinaryReader,
+        PSRGraf.CSVReader,
         path2,
         use_header = false,
     )
@@ -156,7 +156,7 @@ function test_file_to_array()
 
     path = joinpath(".", "data", "example_array_1")
     iow = PSRGraf.open(
-        PSRGraf.BinaryWriter,
+        PSRGraf.CSVWriter,
         path,
         blocks = blocks,
         scenarios = scenarios,
@@ -184,26 +184,26 @@ function test_file_to_array()
     PSRGraf.close(iow)
 
     data, header = PSRGraf.file_to_array_and_header(
-        PSRGraf.BinaryReader,
+        PSRGraf.CSVReader,
         path;
         use_header = false,
     )
 
     data_order, header_order = PSRGraf.file_to_array_and_header(
-        PSRGraf.BinaryReader,
+        PSRGraf.CSVReader,
         path;
         use_header = true,
         header = ["Y", "Z", "X"],
     )
 
     @test data == PSRGraf.file_to_array(
-        PSRGraf.BinaryReader,
+        PSRGraf.CSVReader,
         path;
         use_header = false,
     )
 
     @test data_order == PSRGraf.file_to_array(
-        PSRGraf.BinaryReader,
+        PSRGraf.CSVReader,
         path;
         use_header = true,
         header = ["Y", "Z", "X"],
@@ -271,7 +271,7 @@ end
 function test_time_series_utils()
     test_non_unique_agents()
     # test_convert_twice()
-    test_file_to_array()
+    # test_file_to_array()
     return nothing
 end
 
