@@ -51,6 +51,8 @@
     offset::Int # Header size
 
     file_path::String = ""
+
+    lock::Bool = true
 end
 
 function PSRGraf.open(
@@ -80,6 +82,7 @@ function PSRGraf.open(
     reopen_mode::Bool = false,
     verbose_hour_block_check::Bool = true,
     single_binary::Bool = false,
+    lock::Bool = true,
 )
     if !allow_unsafe_name_length
         if name_length != 24 && name_length != 12
@@ -183,7 +186,7 @@ function PSRGraf.open(
         _delete_or_error(PATH_HDR)
         PATH_BIN = path * ".bin"
         _delete_or_error(PATH_BIN)
-        ioh = open(PATH_HDR, "w")
+        ioh = open(PATH_HDR, "w"; lock = lock)
     end
 
     version = 2
@@ -282,7 +285,7 @@ function PSRGraf.open(
 
     if single_binary
         write(ioh, Int32(0))               # !!! ???
-        io = open(PATH_BIN, "w")
+        io = open(PATH_BIN, "w"; lock = lock)
         seek(ioh, 0)                       # Return to the first byte
         header_size = write(io, read(ioh)) # Write the whole header
         seek(io, 0)                        # Return to the first byte
@@ -290,7 +293,7 @@ function PSRGraf.open(
         seek(io, header_size)              # Go to the first byte of binary data
     else
         close(ioh)
-        io = open(PATH_BIN, "w")
+        io = open(PATH_BIN, "w"; lock = lock)
         header_size = 0
         if reopen_mode
             close(io)
@@ -317,6 +320,7 @@ function PSRGraf.open(
         FILE_PATH = PATH_BIN,
         is_open = !reopen_mode,
         file_path = PATH_BIN,
+        lock = lock,
     )
 end
 
@@ -381,7 +385,7 @@ end
 
 function _reopen_pre_write(io::Writer)
     if io.reopen_mode
-        io.io = Base.open(io.FILE_PATH, "a")
+        io.io = Base.open(io.FILE_PATH, "a"; lock = io.lock)
         io.is_open = true
     end
 

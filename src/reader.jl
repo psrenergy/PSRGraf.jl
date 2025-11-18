@@ -51,6 +51,8 @@
     single_binary::Bool = false
 
     file_path::String = ""
+
+    lock::Bool = true
 end
 
 function Base.show(io::IO, ptr::Reader)
@@ -81,6 +83,7 @@ function PSRGraf.open(
     initial_stage::Dates.Date = Dates.Date(1900, 1, 1),
     verbose_header::Bool = false,
     single_binary::Bool = false,
+    lock::Bool = true,
 )
     # TODO: support 'is_hourly' and 'stage_type'
     if !isnothing(is_hourly) || !isnothing(stage_type)
@@ -96,7 +99,7 @@ function PSRGraf.open(
             error("File not found: $(bin_path)")
         end
 
-        ioh = open(bin_path, "r")
+        ioh = open(bin_path, "r"; lock = lock)
     else
         hdr_path = "$(path).hdr"
         bin_path = "$(path).bin"
@@ -109,7 +112,7 @@ function PSRGraf.open(
             error("File not found: $(hdr_path)")
         end
 
-        ioh = open(hdr_path, "r")
+        ioh = open(hdr_path, "r"; lock = lock)
     end
 
     skip(ioh, 4)
@@ -347,7 +350,7 @@ function PSRGraf.open(
         io = ioh
         header_size = position(io)
     else
-        io = open(bin_path, "r")
+        io = open(bin_path, "r"; lock = lock)
     end
 
     ior = Reader(;
@@ -381,6 +384,7 @@ function PSRGraf.open(
         offset = header_size,
         single_binary = single_binary,
         file_path = bin_path,
+        lock = lock,
     )
 
     finalizer(ior) do (ior_ptr::Reader)
