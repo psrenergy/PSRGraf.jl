@@ -1,5 +1,5 @@
-mutable struct CSVReader
-    rows_iterator::CSV.Rows
+mutable struct CSVReader <: AbstractReader
+    rows_iterator::Union{CSV.Rows, Nothing}
     current_row::CSV.Row2
     current_row_state::Tuple{<:Integer, <:Integer, <:Integer}
 
@@ -206,5 +206,11 @@ function agent_names(reader::CSVReader)
 end
 
 function PSRGraf.close(reader::CSVReader)
+    reader.rows_iterator = nothing
+    empty!(reader.data)
+    empty!(reader.agent_names)
+    reader.current_stage = 0
+    reader.current_scenario = 0
+    reader.current_block = 0
     return nothing
 end

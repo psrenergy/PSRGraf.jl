@@ -478,3 +478,7 @@ function array_to_file end
 Returns the path of the file associated with the [`Reader`](@ref) or [`BinaryWriter`](@ref) instance.
 """
 function file_path end
+
+# Abstract types
+abstract type AbstractReader end
+abstract type AbstractWriter end

@@ -1,4 +1,4 @@
-@kwdef mutable struct BinaryWriter
+@kwdef mutable struct BinaryWriter <: AbstractWriter
     io::IOStream
 
     # stages

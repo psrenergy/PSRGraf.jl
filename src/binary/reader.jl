@@ -1,4 +1,4 @@
-@kwdef mutable struct BinaryReader
+@kwdef mutable struct BinaryReader <: AbstractReader
     io::IOStream
 
     # stages

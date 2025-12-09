@@ -75,11 +75,11 @@ function test_read_and_write_monthly()
 
     PSRGraf.close(ior)
 
-    # @test_throws ErrorException PSRGraf.convert_file(
-    #     PSRGraf.CSVReader,
-    #     PSRGraf.CSVWriter,
-    #     path,
-    # )
+    @test_throws ErrorException PSRGraf.convert_file(
+        PSRGraf.CSVReader,
+        PSRGraf.CSVWriter,
+        path,
+    )
 
     ior = nothing
 

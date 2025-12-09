@@ -1,4 +1,4 @@
-mutable struct CSVWriter 
+mutable struct CSVWriter <: AbstractWriter
     io::IOStream
     stages::Int
     scenarios::Int
@@ -128,17 +128,16 @@ function PSRGraf.open(
         error("File path must be provided with no extension")
     end
 
-    # delete previous file or error if its open
-    _delete_or_error(path)
-
     # Inicia gravacao do resultado
     FILE_PATH = normpath(path)
+    PATH_CSV = FILE_PATH * ".csv"
 
+    _delete_or_error(PATH_CSV)
     # agents with name_length
     agents_with_name_length = _build_agents_str(agents)
 
     # save header
-    io = open(FILE_PATH * ".csv", "w")
+    io = open(PATH_CSV, "w")
     Base.write(io, "Varies per block?       ,$block_type,Unit,$unit,$(Integer(stage_type)),$initial_stage,$initial_year\r\n")
     Base.write(io, "Varies per sequence?    ,$scenarios_type\r\n")
     Base.write(io, "# of agents             ,$(length(agents))\r\n")

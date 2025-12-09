@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(julia --project=. test:*)",
+      "Bash(julia --project=. -e:*)",
+      "Bash(julia --project=.. time_series_utils.jl:*)",
+      "Bash(julia --project=.. runtests.jl:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
