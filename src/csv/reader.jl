@@ -20,6 +20,10 @@ mutable struct CSVReader <: AbstractReader
 
     stage_type::StageType
     is_hourly::Bool
+
+    # For header reordering
+    indices::Vector{Int}
+    queried_agents::Int
 end
 
 function _parse_agents(row::AbstractVector{Symbol})
@@ -94,14 +98,14 @@ function PSRGraf.open(
     path::AbstractString;
     is_hourly::Bool = false,
     header::AbstractVector{<:AbstractString} = String[],
-    use_header::Bool = false, # default to true
+    use_header::Bool = false,
     allow_empty::Bool = false,
     first_stage::Dates.Date = Dates.Date(1900, 1, 1),
     verbose_header::Bool = false,
 )
-    # TODO
-    if verbose_header || !isempty(header) || use_header || allow_empty
-        error("verbose_header, header, use_header and allow_empty arguments not supported by PSRGraf")
+    # TODO: implement verbose_header and allow_empty
+    if verbose_header
+        error("verbose_header argument not supported by PSRGraf yet")
     end
 
     if first_stage != Dates.Date(1900, 1, 1)
@@ -118,24 +122,63 @@ function PSRGraf.open(
     end
 
     rows_iterator = CSV.Rows(PATH_CSV; header = 4)
-    agent_names = _parse_agents(rows_iterator.names)
-    num_agents = length(agent_names)
+    agent_names_file = _parse_agents(rows_iterator.names)
+    total_agents = length(agent_names_file)
     current_row, current_row_state = iterate(rows_iterator)
 
-    data = Vector{Float64}(undef, num_agents)
-    for i in 1:num_agents
-        data[i] = parse(Float64, current_row[i+3])
-    end
-
-    header = readuntil(PATH_CSV, "Stag") |> x -> split(x, "\n")
-    unit = _parse_unit(header)
-    stage_type = _parse_stage_type(header)
-    initial_stage = _parse_initial_stage(header)
-    initial_year = _parse_initial_year(header)
+    file_header = readuntil(PATH_CSV, "Stag") |> x -> split(x, "\n")
+    unit = _parse_unit(file_header)
+    stage_type = _parse_stage_type(file_header)
+    initial_stage = _parse_initial_stage(file_header)
+    initial_year = _parse_initial_year(file_header)
     last_line = _read_last_line(PATH_CSV)
     stages = _parse_stages(last_line)
     scenarios = _parse_scenarios(last_line)
     blocks = _parse_blocks(last_line, stages, is_hourly, stage_type, initial_stage)
+
+    # Handle header reordering
+    if use_header
+        if length(header) > total_agents
+            error(
+                "Header does not match with expected. Header length = $(length(header)), number of agents is $(total_agents)",
+            )
+        end
+
+        indices = sizehint!(Int[], length(header))
+
+        for agent in strip.(header)
+            index = findfirst(isequal(agent), agent_names_file)
+            if isnothing(index)
+                error("Agent '$(agent)' not found in file")
+            end
+            push!(indices, index)
+        end
+
+        queried_agents = length(header)
+        agent_names = deepcopy(header)
+
+        if !allow_empty && isempty(indices)
+            if isempty(header)
+                error(
+                    """
+                    No agents found and empty header inserted.
+                    If you don't want to pass a header consider selecting the 'use_header = false' option
+                    """,
+                )
+            else
+                error("No agents found")
+            end
+        end
+    else
+        queried_agents = total_agents
+        indices = collect(1:total_agents)
+        agent_names = agent_names_file
+    end
+
+    data = Vector{Float64}(undef, queried_agents)
+    for i in 1:queried_agents
+        data[i] = parse(Float64, current_row[indices[i]+3])
+    end
 
     io = CSVReader(
         rows_iterator,
@@ -151,10 +194,12 @@ function PSRGraf.open(
         1,
         1,
         agent_names,
-        num_agents,
+        queried_agents,
         data,
         stage_type,
         is_hourly,
+        indices,
+        queried_agents,
     )
 
     return io
@@ -170,8 +215,8 @@ function next_registry(ocr::CSVReader)
         return nothing
     end
     ocr.current_row, ocr.current_row_state = next
-    for i in 1:ocr.num_agents
-        ocr.data[i] = parse(Float64, ocr.current_row[i+3])
+    for i in 1:ocr.queried_agents
+        ocr.data[i] = parse(Float64, ocr.current_row[ocr.indices[i]+3])
     end
     ocr.current_stage = parse(Int64, ocr.current_row[1])
     ocr.current_scenario = parse(Int64, ocr.current_row[2])

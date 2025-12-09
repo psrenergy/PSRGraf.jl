@@ -69,10 +69,19 @@ const HOURS_IN_STAGE = Dict{StageType, Int}(
 
 function _delete_or_error(path::AbstractString)
     if isfile(path)
-        try
-            rm(path)
-        catch
-            error("Could not delete file $path: it might be open in other process")
+        # Try multiple times with garbage collection in case file handles are still open
+        for attempt in 1:5
+            try
+                rm(path)
+                return
+            catch
+                if attempt < 5
+                    GC.gc()
+                    sleep(0.05)
+                else
+                    error("Could not delete file $path: it might be open in other process")
+                end
+            end
         end
     end
     return
@@ -214,22 +223,6 @@ function _year_stage(
         error("Stage type $stage_type not currently supported")
     end
 end
-
-# Reader functions
-
-"""
-    file_to_array(::Type{T}, path::String; use_header::Bool = true, header::Vector{String} = String[]) where T <: Reader
-
-Write a file to an array
-"""
-function file_to_array end
-
-"""
-    file_to_array_and_header(::Type{T}, path::String; use_header::Bool = true, header::Vector{String} = String[]) where T <: Reader
-
-Write a file to an array and header
-"""
-function file_to_array_and_header end
 
 """
     open(::Type{BinaryWriter}, path::String; kwargs...)
@@ -482,3 +475,132 @@ function file_path end
 # Abstract types
 abstract type AbstractReader end
 abstract type AbstractWriter end
+
+# Reader utility functions
+
+"""
+    file_to_array(::Type{T}, path::String; use_header::Bool = true, header::Vector{String} = String[]) where T <: AbstractReader
+
+Write a file to an array
+"""
+function file_to_array(
+    ::Type{T},
+    path::String;
+    use_header::Bool = true,
+    header::Vector{String} = String[],
+) where {T <: AbstractReader}
+    return file_to_array_and_header(T, path; use_header = use_header, header = header)[1]
+end
+
+"""
+    file_to_array_and_header(::Type{T}, path::String; use_header::Bool = true, header::Vector{String} = String[]) where T <: AbstractReader
+
+Write a file to an array and header
+"""
+function file_to_array_and_header(
+    ::Type{T},
+    path::String;
+    use_header::Bool = true,
+    header::Vector{String} = String[],
+) where {T <: AbstractReader}
+    io = open(
+        T,
+        path;
+        use_header = use_header,
+        header = header,
+    )
+    stages = max_stages(io)
+    scenarios = max_scenarios(io)
+    blocks = max_blocks(io)
+    agents = max_agents(io)
+    out = zeros(agents, blocks, scenarios, stages)
+    for t in 1:stages, s in 1:scenarios, b in 1:blocks
+        if b > blocks_in_stage(io, t)
+            # leave a zero for ignored hours
+            continue
+        end
+        for a in 1:agents
+            out[a, b, s, t] = io[a]
+        end
+        next_registry(io)
+    end
+    names = copy(agent_names(io)) # hold data after close
+    close(io)
+    GC.gc() # Force garbage collection to release file handles on Windows
+    sleep(0.1) # Give time for file handles to be released
+    return out, names
+end
+
+"""
+    array_to_file(::Type{T}, path::String, data::Array{Float64, 4}; kwargs...) where T <: AbstractWriter
+
+Write an array to a file
+"""
+function array_to_file(
+    ::Type{T},
+    path::String,
+    data::Array{Float64, 4}; #[a,b,s,t]
+    # mandatory
+    agents::Vector{String} = String[],
+    unit::Union{Nothing, String} = nothing,
+    # optional
+    is_hourly::Bool = false,
+    name_length::Integer = 24,
+    block_type::Integer = 1,
+    scenarios_type::Integer = 1,
+    stage_type::StageType = STAGE_MONTH, # important for header
+    initial_stage::Integer = 1, #month or week
+    initial_year::Integer = 1900,
+    # additional
+    allow_unsafe_name_length::Bool = false,
+    kwargs...,
+) where {T <: AbstractWriter}
+    (nagents, blocks, scenarios, stages) = size(data)
+    if isempty(agents)
+        agents = String["$i" for i in 1:nagents]
+    end
+    if length(agents) != nagents
+        error(
+            "agents names for header do not match with the first dimension of data vector",
+        )
+    end
+    writer = open(
+        T,
+        path;
+        # mandatory
+        blocks = blocks,
+        scenarios = scenarios,
+        stages = stages,
+        agents = agents,
+        unit = unit,
+        # optional
+        is_hourly = is_hourly,
+        name_length = name_length,
+        block_type = block_type,
+        scenarios_type = scenarios_type,
+        stage_type = stage_type,
+        initial_stage = initial_stage, #month or week
+        initial_year = initial_year,
+        # additional
+        allow_unsafe_name_length = allow_unsafe_name_length,
+        kwargs...,
+    )
+
+    cache = zeros(Float64, nagents)
+    for t in 1:stages, s in 1:scenarios, b in 1:blocks
+        for i in 1:nagents
+            cache[i] = data[i, b, s, t]
+        end
+        write_registry(
+            writer,
+            cache,
+            t,
+            s,
+            b,
+        )
+    end
+
+    close(writer)
+
+    return nothing
+end

@@ -4,7 +4,9 @@
       "Bash(julia --project=. test:*)",
       "Bash(julia --project=. -e:*)",
       "Bash(julia --project=.. time_series_utils.jl:*)",
-      "Bash(julia --project=.. runtests.jl:*)"
+      "Bash(julia --project=.. runtests.jl:*)",
+      "Bash(findstr:*)",
+      "Bash(if not exist data mkdir data)"
     ],
     "deny": [],
     "ask": []
