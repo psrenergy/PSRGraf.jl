@@ -8,7 +8,7 @@ function read_write_binary_hourly()
 
     for stage_type in [PSRGraf.STAGE_MONTH, PSRGraf.STAGE_WEEK, PSRGraf.STAGE_DAY]
         gerter = PSRGraf.open(
-            PSRGraf.Writer,
+            PSRGraf.BinaryWriter,
             FILE_GERTER;
             is_hourly = true,
             scenarios = SCENARIOS,
@@ -39,7 +39,7 @@ function read_write_binary_hourly()
         PSRGraf.close(gerter)
 
         ior = PSRGraf.open(
-            PSRGraf.Reader,
+            PSRGraf.BinaryReader,
             FILE_GERTER;
             use_header = false,
         )
@@ -93,7 +93,7 @@ function read_write_binary_subhourly()
     for stage_type in [PSRGraf.STAGE_MONTH, PSRGraf.STAGE_WEEK, PSRGraf.STAGE_DAY]
         for hour_discretization in [2, 3, 4, 6, 12]
             gerter = PSRGraf.open(
-                PSRGraf.Writer,
+                PSRGraf.BinaryWriter,
                 FILE_GERTER;
                 is_hourly = true,
                 hour_discretization = hour_discretization,
@@ -118,7 +118,7 @@ function read_write_binary_subhourly()
 
             PSRGraf.close(gerter)
 
-            ior = PSRGraf.open(PSRGraf.Reader, FILE_GERTER; use_header = false)
+            ior = PSRGraf.open(PSRGraf.BinaryReader, FILE_GERTER; use_header = false)
 
             @test PSRGraf.max_stages(ior) == STAGES
             @test PSRGraf.max_scenarios(ior) == SCENARIOS
@@ -170,7 +170,7 @@ function read_write_binary_hourly_single_binary()
 
     for stage_type in [PSRGraf.STAGE_MONTH, PSRGraf.STAGE_WEEK, PSRGraf.STAGE_DAY]
         gerter = PSRGraf.open(
-            PSRGraf.Writer,
+            PSRGraf.BinaryWriter,
             FILE_GERTER;
             is_hourly = true,
             scenarios = SCENARIOS,
@@ -202,7 +202,7 @@ function read_write_binary_hourly_single_binary()
         PSRGraf.close(gerter)
 
         ior = PSRGraf.open(
-            PSRGraf.Reader,
+            PSRGraf.BinaryReader,
             FILE_GERTER;
             use_header = false,
             single_binary = true,

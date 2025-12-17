@@ -13,7 +13,7 @@ function read_binary_subhourly()
                 "subhourly_$(stage_type)_$(hour_discretization)",
             )
 
-            io = PSRGraf.open(PSRGraf.Reader, path; use_header = false)
+            io = PSRGraf.open(PSRGraf.BinaryReader, path; use_header = false)
 
             @test PSRGraf.max_stages(io) == STAGES
             @test PSRGraf.max_scenarios(io) == SCENARIOS
