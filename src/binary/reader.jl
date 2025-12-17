@@ -55,11 +55,11 @@
     lock::Bool = true
 end
 
-function Base.show(io::IO, ptr::Reader)
+function Base.show(io::IO, ptr::BinaryReader)
     return println(
         io,
         """
-        Reader:
+        BinaryReader:
            Stages = $(ptr.stage_total)
            Scenarios = $(ptr.scenario_total)
            Max Blocks = $(ptr.block_total)
