@@ -66,7 +66,6 @@ const HOURS_IN_STAGE = Dict{StageType, Int}(
     STAGE_YEAR => 8760,
 )
 
-
 function _delete_or_error(path::AbstractString)
     if isfile(path)
         # Try multiple times with garbage collection in case file handles are still open
