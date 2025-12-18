@@ -5,7 +5,7 @@ using Test
 
 include("utils.jl")
 
-@testset begin 
+@testset begin
     @testset "OpenBinary file format" begin
         @testset "Read and write with monthly data" begin
             @time include("read_and_write_blocks.jl")
@@ -27,16 +27,16 @@ include("utils.jl")
         end
     end
     @testset "OpenCSV file format" begin
-        @testset "Read and write with monthly data" begin 
+        @testset "Read and write with monthly data" begin
             @time include("read_and_write_csv_monthly.jl")
         end
-        @testset "Read and write with hourly data" begin 
+        @testset "Read and write with hourly data" begin
             @time include("read_and_write_csv_hourly.jl")
         end
-        @testset "Utils" begin 
+        @testset "Utils" begin
             @time include("time_series_utils.jl")
         end
-        @testset "Issues" begin 
+        @testset "Issues" begin
             @time include("issues.jl")
         end
     end

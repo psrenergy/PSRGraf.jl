@@ -6,7 +6,7 @@ function test_non_unique_agents()
     path = joinpath(".", "data", "example_non_unique_agents")
     @test_throws ErrorException iow = PSRGraf.open(
         PSRGraf.CSVWriter,
-        path,
+        path;
         blocks = 3,
         scenarios = 4,
         stages = 5,
@@ -28,7 +28,7 @@ function test_convert_twice()
 
     iow = PSRGraf.open(
         PSRGraf.CSVWriter,
-        path1,
+        path1;
         blocks = blocks,
         scenarios = scenarios,
         stages = stages,
@@ -60,7 +60,7 @@ function test_convert_twice()
 
     ior = PSRGraf.open(
         PSRGraf.CSVReader,
-        path1,
+        path1;
         use_header = false,
     )
 
@@ -112,7 +112,7 @@ function test_file_to_array()
     path = joinpath(".", "data", "example_array_1")
     iow = PSRGraf.open(
         PSRGraf.CSVWriter,
-        path,
+        path;
         blocks = blocks,
         scenarios = scenarios,
         stages = stages,
@@ -171,7 +171,7 @@ function test_file_to_array()
     PSRGraf.array_to_file(
         PSRGraf.CSVWriter,
         path,
-        data,
+        data;
         agents = header,
         unit = "MW",
         initial_year = 2006,
@@ -179,7 +179,7 @@ function test_file_to_array()
 
     ior = PSRGraf.open(
         PSRGraf.CSVReader,
-        path,
+        path;
         use_header = false,
     )
 

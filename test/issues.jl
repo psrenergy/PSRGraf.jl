@@ -18,7 +18,9 @@ function issue13()
 end
 
 function test_issues()
-    @testset "Issue 13" begin issue13() end
+    @testset "Issue 13" begin
+        issue13()
+    end
 end
 
 test_issues()
