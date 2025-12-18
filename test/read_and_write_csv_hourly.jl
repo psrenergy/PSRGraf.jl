@@ -11,7 +11,7 @@ function test_read_and_write_hourly()
 
     gerter = PSRGraf.open(
         PSRGraf.CSVWriter,
-        path,
+        path;
         is_hourly = true,
         scenarios = scenarios,
         stages = stages,
@@ -44,7 +44,7 @@ function test_read_and_write_hourly()
 
     ior = PSRGraf.open(
         PSRGraf.CSVReader,
-        path,
+        path;
         is_hourly = true,
     )
 

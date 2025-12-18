@@ -10,7 +10,7 @@ function convert_file(
     if isempty(path_to)
         path_to = path_from
     end
-    
+
     # Check if converting CSV to CSV or Binary to Binary - these are no-ops
     if (R == CSVReader && W == CSVWriter) || (R == BinaryReader && W == BinaryWriter)
         error("Conversion from $(R) to $(W) is a no-op. Use different formats (Binary ↔ CSV).")

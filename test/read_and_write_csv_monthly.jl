@@ -12,7 +12,7 @@ function test_read_and_write_monthly()
 
     iow = PSRGraf.open(
         PSRGraf.CSVWriter,
-        path,
+        path;
         blocks = blocks,
         scenarios = scenarios,
         stages = stages,
