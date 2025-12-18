@@ -65,7 +65,6 @@ function read_write_binary_block()
 
         PSRGraf.close(ior)
         ior = nothing
-
     end
 
     rm(FILE_PATH * ".bin")
