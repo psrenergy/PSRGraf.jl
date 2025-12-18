@@ -9,6 +9,7 @@ Encodings = "8275c4fe-57c3-4fbf-b39c-271e6148849a"
 [compat]
 Dates = "1"
 Encodings = "0.1.1"
+julia = "1.10"
 
 [extras]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
