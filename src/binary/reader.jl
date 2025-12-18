@@ -1,4 +1,4 @@
-@kwdef mutable struct Reader
+@kwdef mutable struct BinaryReader <: AbstractReader
     io::IOStream
 
     # stages
@@ -55,11 +55,11 @@
     lock::Bool = true
 end
 
-function Base.show(io::IO, ptr::Reader)
+function Base.show(io::IO, ptr::BinaryReader)
     return println(
         io,
         """
-        Reader:
+        BinaryReader:
            Stages = $(ptr.stage_total)
            Scenarios = $(ptr.scenario_total)
            Max Blocks = $(ptr.block_total)
@@ -73,7 +73,7 @@ function Base.show(io::IO, ptr::Reader)
 end
 
 function PSRGraf.open(
-    ::Type{Reader},
+    ::Type{BinaryReader},
     path::String;
     is_hourly::Union{Bool, Nothing} = nothing,
     stage_type::Union{StageType, Nothing} = nothing,
@@ -353,7 +353,7 @@ function PSRGraf.open(
         io = open(bin_path, "r"; lock = lock)
     end
 
-    ior = Reader(;
+    ior = BinaryReader(;
         first_stage = first_stage,
         last_stage = last_stage,
         num_stages = num_stages,
@@ -387,7 +387,7 @@ function PSRGraf.open(
         lock = lock,
     )
 
-    finalizer(ior) do (ior_ptr::Reader)
+    finalizer(ior) do (ior_ptr::BinaryReader)
         @async if ior_ptr.is_open
             Base.close(ior_ptr.io)
         end
@@ -405,7 +405,7 @@ function PSRGraf.open(
     return ior
 end
 
-function _rewind!(ior::Reader)
+function _rewind!(ior::BinaryReader)
     seek(ior.io, ior.offset)
     goto(ior, ior.first_stage, 1, 1)
 
@@ -418,39 +418,39 @@ function _read_unit!(ioh::IO, strlen::Integer = 7)
     return strip(join(Char.(buffer)))
 end
 
-function Base.getindex(graf::Reader, args...)
+function Base.getindex(graf::BinaryReader, args...)
     return Base.getindex(graf.data, args...)
 end
 
-is_hourly(graf::Reader) = graf.hours_exist
-hour_discretization(graf::Reader) = graf.hour_discretization
+is_hourly(graf::BinaryReader) = graf.hours_exist
+hour_discretization(graf::BinaryReader) = graf.hour_discretization
 
-max_stages(graf::Reader) = graf.stage_total - graf.relative_stage_skip
-max_scenarios(graf::Reader) = graf.scenario_total
-max_blocks(graf::Reader) = graf.block_total
-max_blocks_current(graf::Reader) = graf.block_total_current
-max_blocks_stage(graf::Reader, t::Integer) = Int(graf.blocks_per_stage[t+graf.relative_stage_skip])
-max_agents(graf::Reader) = length(graf.indices)
+max_stages(graf::BinaryReader) = graf.stage_total - graf.relative_stage_skip
+max_scenarios(graf::BinaryReader) = graf.scenario_total
+max_blocks(graf::BinaryReader) = graf.block_total
+max_blocks_current(graf::BinaryReader) = graf.block_total_current
+max_blocks_stage(graf::BinaryReader, t::Integer) = Int(graf.blocks_per_stage[t+graf.relative_stage_skip])
+max_agents(graf::BinaryReader) = length(graf.indices)
 
-stage_type(graf::Reader) = graf.stage_type
-initial_stage(graf::Reader) = graf.initial_stage
-initial_year(graf::Reader) = graf.initial_year
+stage_type(graf::BinaryReader) = graf.stage_type
+initial_stage(graf::BinaryReader) = graf.initial_stage
+initial_year(graf::BinaryReader) = graf.initial_year
 
-data_unit(graf::Reader) = graf.unit
+data_unit(graf::BinaryReader) = graf.unit
 
-current_stage(graf::Reader) = graf.stage_current
-current_scenario(graf::Reader) = graf.scenario_current
-current_block(graf::Reader) = graf.block_current
+current_stage(graf::BinaryReader) = graf.stage_current
+current_scenario(graf::BinaryReader) = graf.scenario_current
+current_block(graf::BinaryReader) = graf.block_current
 
-function unsafe_agent_names(graf::Reader)
+function unsafe_agent_names(graf::BinaryReader)
     return graf.agent_names
 end
 
-function agent_names(graf::Reader)
+function agent_names(graf::BinaryReader)
     return deepcopy(unsafe_agent_names(graf))
 end
 
-function goto(graf::Reader, t::Integer, s::Integer = 1, b::Integer = 1)
+function goto(graf::BinaryReader, t::Integer, s::Integer = 1, b::Integer = 1)
     @assert graf.is_open
 
     tt = t + graf.relative_stage_skip
@@ -591,7 +591,7 @@ function _get_hour_discretization(stage_type::StageType, block_total::Integer)
     return block_total ÷ hour_total
 end
 
-function _get_expected_bin_size(ior::Reader)
+function _get_expected_bin_size(ior::BinaryReader)
     t = ior.last_stage
     s = ior.scenario_total
     b = ior.hours_exist ? ior.blocks_per_stage[end] : ior.block_total
@@ -604,7 +604,7 @@ function _get_expected_bin_size(ior::Reader)
     end
 end
 
-function _get_bin_size(ior::Reader)
+function _get_bin_size(ior::BinaryReader)
     p = position(ior.io)
     seekend(ior.io)
 
@@ -618,7 +618,7 @@ function _get_bin_size(ior::Reader)
     end
 end
 
-function _check_bin_size(ior::Reader)
+function _check_bin_size(ior::BinaryReader)
     size_delta = _get_expected_bin_size(ior) - _get_bin_size(ior)
 
     if size_delta > 0
@@ -630,7 +630,7 @@ function _check_bin_size(ior::Reader)
     return nothing
 end
 
-function next_registry(graf::Reader)
+function next_registry(graf::BinaryReader)
     if graf.stage_current == graf.last_stage &&
        graf.scenario_current == graf.scenario_total &&
        graf.block_current == graf.block_total
@@ -675,7 +675,7 @@ function next_registry(graf::Reader)
     return nothing
 end
 
-function PSRGraf.close(ior::Reader)
+function PSRGraf.close(ior::BinaryReader)
     Base.close(ior.io)
     ior.is_open = false
     empty!(ior.data)
@@ -687,6 +687,6 @@ function PSRGraf.close(ior::Reader)
     return nothing
 end
 
-function file_path(ior::Reader)
+function file_path(ior::BinaryReader)
     return ior.file_path
 end

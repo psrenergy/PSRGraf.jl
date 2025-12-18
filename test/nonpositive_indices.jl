@@ -1,9 +1,9 @@
 function test_nonpositive_indices()
     path = joinpath(@__DIR__, "data", "case5", "inflow")
 
-    io_r = PSRGraf.open(PSRGraf.Reader, path; use_header = false)
+    io_r = PSRGraf.open(PSRGraf.BinaryReader, path; use_header = false)
 
-    @test io_r isa PSRGraf.Reader
+    @test io_r isa PSRGraf.BinaryReader
     @test io_r.initial_stage == 5
     @test io_r.first_stage == -2
     @test io_r.relative_stage_skip == 0
@@ -31,7 +31,7 @@ function test_nonpositive_indices()
     temp_path = tempname()
 
     io_w = PSRGraf.open(
-        PSRGraf.Writer,
+        PSRGraf.BinaryWriter,
         temp_path;
         first_stage = -2,
         unit = io_r.unit,

@@ -8,7 +8,7 @@ function read_write_binary_block()
 
     for stage_type in [PSRGraf.STAGE_MONTH, PSRGraf.STAGE_WEEK, PSRGraf.STAGE_DAY]
         iow = PSRGraf.open(
-            PSRGraf.Writer,
+            PSRGraf.BinaryWriter,
             FILE_PATH;
             blocks = BLOCKS,
             scenarios = SCENARIOS,
@@ -32,7 +32,7 @@ function read_write_binary_block()
         PSRGraf.close(iow)
 
         ior = PSRGraf.open(
-            PSRGraf.Reader,
+            PSRGraf.BinaryReader,
             FILE_PATH;
             use_header = false,
         )
@@ -83,7 +83,7 @@ function read_write_binary_block_single_binary()
 
     for stage_type in [PSRGraf.STAGE_MONTH, PSRGraf.STAGE_WEEK, PSRGraf.STAGE_DAY]
         iow = PSRGraf.open(
-            PSRGraf.Writer,
+            PSRGraf.BinaryWriter,
             FILE_PATH;
             blocks = BLOCKS,
             scenarios = SCENARIOS,
@@ -109,7 +109,7 @@ function read_write_binary_block_single_binary()
         PSRGraf.close(iow)
 
         ior = PSRGraf.open(
-            PSRGraf.Reader,
+            PSRGraf.BinaryReader,
             FILE_PATH;
             use_header = false,
             single_binary = true,
