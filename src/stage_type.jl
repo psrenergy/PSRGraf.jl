@@ -590,13 +590,7 @@ function array_to_file(
         for i in 1:nagents
             cache[i] = data[i, b, s, t]
         end
-        write_registry(
-            writer,
-            cache,
-            t,
-            s,
-            b,
-        )
+        write_registry(writer, cache, t, s, b)
     end
 
     close(writer)
