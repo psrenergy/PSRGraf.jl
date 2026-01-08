@@ -20,6 +20,7 @@ function convert_file(
         R,
         path_from;
         use_header = false,
+        verbose_hour_block_check = false,
     )
 
     # currently ignores block and scenarios type
@@ -48,6 +49,7 @@ function convert_file(
         stage_type = stage_type(reader),
         initial_stage = initial_stage(reader),
         initial_year = initial_year(reader),
+        verbose_hour_block_check = false,
     )
 
     cache = zeros(Float64, n_agents)
