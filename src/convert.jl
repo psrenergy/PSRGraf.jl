@@ -20,7 +20,6 @@ function convert_file(
         R,
         path_from;
         use_header = false,
-        verbose_hour_block_check = false,
     )
 
     # currently ignores block and scenarios type
