@@ -48,6 +48,7 @@ function convert_file(
         stage_type = stage_type(reader),
         initial_stage = initial_stage(reader),
         initial_year = initial_year(reader),
+        verbose_hour_block_check = false,
     )
 
     cache = zeros(Float64, n_agents)
