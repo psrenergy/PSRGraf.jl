@@ -1,6 +1,5 @@
 using PSRGraf
 using CSV
-using DataFrames
 using Test
 
 include("utils.jl")

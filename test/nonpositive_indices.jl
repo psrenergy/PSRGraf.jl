@@ -14,11 +14,7 @@ function test_nonpositive_indices()
         1,
     ) == 0
 
-    src_table = CSV.read(
-        "$path.csv", DataFrames.DataFrame;
-        header = 4,
-        skipto = 5,
-    )
+    src_table = CSV.File("$path.csv"; header = 4, skipto = 5)
 
     @testset "Read" begin
         @test PSRGraf.goto(io_r, -2, 1, 1) === nothing
@@ -44,10 +40,12 @@ function test_nonpositive_indices()
     @testset "Write" begin
         @test io_w.first_stage == -2
 
-        for row in eachrow(src_table)
-            t, s, b, data... = row
-
-            cache = collect(Float64, data)
+        num_cols = length(src_table.names)
+        for row in src_table
+            t = Int(row[1])
+            s = Int(row[2])
+            b = Int(row[3])
+            cache = [Float64(row[i]) for i in 4:num_cols]
 
             PSRGraf.write_registry(io_w, cache, t, s, b)
         end

@@ -1,7 +1,32 @@
+mutable struct CSVRowIterator
+    io::IO
+    names::Vector{Symbol}
+end
+
+struct CSVDataRow
+    fields::Vector{SubString{String}}
+end
+
+Base.getindex(row::CSVDataRow, i::Int) = row.fields[i]
+
+function Base.iterate(iter::CSVRowIterator)
+    eof(iter.io) && return nothing
+    line = readline(iter.io)
+    isempty(line) && return nothing
+    return CSVDataRow(split(line, ',')), nothing
+end
+
+function Base.iterate(iter::CSVRowIterator, ::Nothing)
+    eof(iter.io) && return nothing
+    line = readline(iter.io)
+    isempty(line) && return nothing
+    return CSVDataRow(split(line, ',')), nothing
+end
+
 mutable struct CSVReader <: AbstractReader
-    rows_iterator::Union{CSV.Rows, Nothing}
-    current_row::CSV.Row2
-    current_row_state::Tuple{<:Integer, <:Integer, <:Integer}
+    rows_iterator::Union{CSVRowIterator, Nothing}
+    current_row::CSVDataRow
+    current_row_state::Nothing
 
     stages::Int
     scenarios::Int
@@ -121,12 +146,18 @@ function PSRGraf.open(
         error("file not found: $PATH_CSV")
     end
 
-    rows_iterator = CSV.Rows(PATH_CSV; header = 4)
+    file_io = Base.open(PATH_CSV, "r")
+    line1 = readline(file_io)
+    line2 = readline(file_io)
+    line3 = readline(file_io)
+    header_line = readline(file_io)
+    col_names = Symbol.(strip.(split(header_line, ',')))
+    rows_iterator = CSVRowIterator(file_io, col_names)
     agent_names_file = _parse_agents(rows_iterator.names)
     total_agents = length(agent_names_file)
     current_row, current_row_state = iterate(rows_iterator)
 
-    file_header = readuntil(PATH_CSV, "Stag") |> x -> split(x, "\n")
+    file_header = [line1, line2, line3]
     unit = _parse_unit(file_header)
     stage_type = _parse_stage_type(file_header)
     initial_stage = _parse_initial_stage(file_header)
@@ -251,6 +282,9 @@ function agent_names(reader::CSVReader)
 end
 
 function PSRGraf.close(reader::CSVReader)
+    if reader.rows_iterator !== nothing
+        Base.close(reader.rows_iterator.io)
+    end
     reader.rows_iterator = nothing
     empty!(reader.data)
     empty!(reader.agent_names)
