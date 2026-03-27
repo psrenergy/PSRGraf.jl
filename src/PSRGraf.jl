@@ -1,6 +1,5 @@
 module PSRGraf
 
-using CSV
 using Dates
 using Encodings
 
